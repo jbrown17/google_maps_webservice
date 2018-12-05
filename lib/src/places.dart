@@ -86,18 +86,35 @@ class GoogleMapsPlaces extends GoogleWebService {
     return _decodeSearchResponse(await doGet(url));
   }
 
-  Future<PlacesDetailsResponse> getDetailsByPlaceId(String placeId,
-      {String extensions, String language}) async {
+  Future<PlacesDetailsResponse> getDetailsByPlaceId(String placeId, {String fields, String extensions, String language}) async {
     final url = buildDetailsUrl(
-        placeId: placeId, extensions: extensions, language: language);
+      placeId: placeId,
+      fields: fields,
+      extensions: extensions, 
+      language: language
+    );
     return _decodeDetailsResponse(await doGet(url));
   }
 
-  Future<PlacesDetailsResponse> getDetailsByReference(String reference,
-      {String extensions, String language}) async {
+  Future<PlacesDetailsResponse> getDetailsByReference(String reference, {String fields, String extensions, String language}) async {
     final url = buildDetailsUrl(
-        reference: reference, extensions: extensions, language: language);
+      reference: reference, 
+      fields: fields,
+      extensions: extensions, 
+      language: language
+    );
     return _decodeDetailsResponse(await doGet(url));
+  }
+
+  Future<String> getDetailsJsonByPlaceId(String placeId, {String fields, String extensions, String language}) async {
+    final url = buildDetailsUrl(
+      placeId: placeId,
+      fields: fields,
+      extensions: extensions, 
+      language: language
+    );
+    var response = await doGet(url);
+    return response.body;
   }
 
   Future<PlacesAutocompleteResponse> autocomplete(String input,
@@ -204,8 +221,7 @@ class GoogleMapsPlaces extends GoogleWebService {
     return "$url$_textSearchUrl?${buildQuery(params)}";
   }
 
-  String buildDetailsUrl(
-      {String placeId, String reference, String extensions, String language}) {
+  String buildDetailsUrl({String placeId, String reference, String fields, String extensions, String language}) {
     if (placeId != null && reference != null) {
       throw new ArgumentError(
           "You must supply either 'placeid' or 'reference'");
@@ -215,7 +231,8 @@ class GoogleMapsPlaces extends GoogleWebService {
       "placeid": placeId,
       "reference": reference,
       "language": language,
-      "extensions": extensions
+      "extensions": extensions,
+      "fields": fields
     };
 
     if (apiKey != null) {
